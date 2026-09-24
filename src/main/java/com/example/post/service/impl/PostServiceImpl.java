@@ -2,6 +2,7 @@ package com.example.post.service.impl;
 
 import com.example.post.entity.Post;
 import com.example.post.enumeration.PostStatus;
+import com.example.post.exception.PostNotFoundException;
 import com.example.post.repository.PostRepository;
 import com.example.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class profileServiceImpl implements PostService {
+public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
 
@@ -26,7 +27,13 @@ public class profileServiceImpl implements PostService {
 
     @Override
     public Post getPostById(String id) {
-        return postRepository.findById(id).orElse(null);
+
+        return postRepository.findById(id)
+                .orElseThrow(() ->
+                        new PostNotFoundException(
+                                "Post not found with id: " + id
+                        )
+                );
     }
 
     @Override
@@ -37,11 +44,12 @@ public class profileServiceImpl implements PostService {
     @Override
     public Post updatePost(String id, Post post) {
 
-        Post existingPost = postRepository.findById(id).orElse(null);
-
-        if (existingPost == null) {
-            return null;
-        }
+        Post existingPost = postRepository.findById(id)
+                .orElseThrow(() ->
+                        new PostNotFoundException(
+                                "Post not found with id: " + id
+                        )
+                );
 
         existingPost.setTitle(post.getTitle());
         existingPost.setDescription(post.getDescription());

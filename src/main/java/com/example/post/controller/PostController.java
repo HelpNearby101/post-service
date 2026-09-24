@@ -2,6 +2,8 @@ package com.example.post.controller;
 
 import com.example.post.entity.Post;
 import com.example.post.enumeration.PostCategory;
+import com.example.post.enumeration.ResponseStatus;
+import com.example.post.response.ApiResponse;
 import com.example.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +19,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public Post createPost(@RequestBody Map<String, Object> request) {
+    public ApiResponse createPost(
+            @RequestBody Map<String, Object> request) {
 
         Post post = new Post();
 
@@ -50,35 +53,91 @@ public class PostController {
                 )
         );
 
-        return postService.createPost(post);
+        Post createdPost = postService.createPost(post);
+
+        return new ApiResponse(
+                "Post created successfully",
+                ResponseStatus.SUCCESS,
+                createdPost,
+                201
+        );
     }
 
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable String id) {
-        return postService.getPostById(id);
+    public ApiResponse getPostById(
+            @PathVariable String id) {
+
+        Post post = postService.getPostById(id);
+
+        return new ApiResponse(
+                "Post fetched successfully",
+                ResponseStatus.SUCCESS,
+                post,
+                200
+        );
     }
 
     @GetMapping
-    public List<Post> getAllPosts() {
-        return postService.getAllPosts();
+    public ApiResponse getAllPosts() {
+
+        List<Post> posts = postService.getAllPosts();
+
+        return new ApiResponse(
+                "Posts fetched successfully",
+                ResponseStatus.SUCCESS,
+                posts,
+                200
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse updatePost(
+            @PathVariable String id,
+            @RequestBody Post post) {
+
+        Post updatedPost =
+                postService.updatePost(id, post);
+
+        return new ApiResponse(
+                "Post updated successfully",
+                ResponseStatus.SUCCESS,
+                updatedPost,
+                200
+        );
     }
 
     @DeleteMapping("/{id}")
-    public String deletePost(@PathVariable String id) {
+    public ApiResponse deletePost(
+            @PathVariable String id) {
+
         postService.deletePost(id);
-        return "Post deleted successfully";
+
+        return new ApiResponse(
+                "Post deleted successfully",
+                ResponseStatus.SUCCESS,
+                null,
+                200
+        );
     }
 
     @GetMapping("/nearby")
-    public List<Post> findNearbyPosts(
+    public ApiResponse findNearbyPosts(
             @RequestParam double latitude,
             @RequestParam double longitude,
-            @RequestParam double radius
-    ) {
-        return postService.findNearbyPosts(
-                latitude,
-                longitude,
-                radius
+            @RequestParam double radius) {
+
+        List<Post> posts =
+                postService.findNearbyPosts(
+                        latitude,
+                        longitude,
+                        radius
+                );
+
+        return new ApiResponse(
+                "Nearby posts fetched successfully",
+                ResponseStatus.SUCCESS,
+                posts,
+                200
         );
     }
 }
